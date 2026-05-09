@@ -1,1 +1,1 @@
-# Thegiggle.ai
+# Thegiggle store
