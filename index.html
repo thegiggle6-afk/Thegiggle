@@ -1,222 +1,1339 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Giggle AI</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap" rel="stylesheet">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TheGiggle Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{--g:#10A37F;--gd:#0d8c6d;--gl:#E8F8F3;--go:#F97316;--bg:#F5F5F0;--white:#fff;--text:#1A1A1A;--text2:#4A4A4A;--muted:#9CA3AF;--border:#E5E7EB;--r:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+.hidden{display:none!important;}
+.page{display:none;min-height:100vh;padding-bottom:80px;}
+.page.active{display:block;animation:fu .3s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-    <style>
-        :root {
-            --bg-main: #131314;
-            --bg-sidebar: #1e1f20;
-            --text-gray: #c4c7c5;
-            --google-blue: #4285f4;
-        }
+/* NAV */
+.top-nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:90;}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:40px;height:40px;background:var(--g);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.logo-text{font-size:20px;font-weight:900;color:var(--g);}
+.logo-text span{color:var(--go);}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Google Sans', sans-serif; }
-        
-        body { background-color: var(--bg-main); color: #e3e3e3; height: 100dvh; overflow: hidden; display: flex; }
+/* BOTTOM NAV */
+.bot-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--white);border-top:1px solid var(--border);display:flex;z-index:90;}
+.bot-nav.hidden{display:none!important;}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted);transition:.2s;}
+.bn-item.active{color:var(--g);}
+.bn-item i{font-size:20px;}
 
-        /* --- AUTH SCREEN (DITTO CLONE) --- */
-        #auth-screen {
-            position: fixed; inset: 0; z-index: 9999; background: #fff;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
+/* CARDS */
+.card{background:var(--white);border-radius:var(--r);padding:18px;margin-bottom:12px;border:1px solid var(--border);}
 
-        .login-box {
-            width: 100%; max-width: 400px; padding: 40px; border: 1px solid #dadce0; border-radius: 8px; text-align: center;
-        }
+/* BUTTONS */
+.btn{width:100%;padding:15px;border-radius:var(--r);border:none;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:.2s;}
+.btn-g{background:var(--g);color:#fff;}
+.btn-g:hover{background:var(--gd);}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--g);color:var(--g);}
+.btn-sm{width:auto;padding:9px 18px;font-size:14px;border-radius:10px;}
 
-        .google-btn {
-            width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
-            padding: 12px; border: 1px solid #dadce0; border-radius: 4px; font-weight: 500;
-            color: #3c4043; cursor: pointer; transition: 0.2s; margin-top: 24px;
-        }
-        .google-btn:hover { background: #f8f9fa; }
+/* INPUTS */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:6px;}
+.field input,.field textarea,.field select{width:100%;background:#F9F9F7;border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);outline:none;transition:.2s;}
+.field input:focus,.field textarea:focus{border-color:var(--g);}
+.field textarea{resize:vertical;min-height:80px;}
+.field .prefix{display:flex;gap:0;align-items:stretch;}
+.field .prefix-label{background:#F0F0EC;border:1.5px solid var(--border);border-right:none;border-radius:12px 0 0 12px;padding:13px 14px;font-weight:700;font-size:15px;color:var(--text2);}
+.field .prefix input{border-radius:0 12px 12px 0;}
 
-        /* --- MAIN APP UI --- */
-        .app-container { display: none; width: 100%; height: 100%; }
+/* PROGRESS BAR */
+.prog-bar{height:5px;background:#E5E7EB;border-radius:3px;margin-bottom:24px;}
+.prog-fill{height:100%;background:var(--g);border-radius:3px;transition:.4s;}
 
-        .sidebar {
-            width: 280px; background-color: var(--bg-sidebar); display: flex; flex-direction: column;
-            padding: 16px; transition: 0.3s;
-        }
+/* STEP HEADER */
+.step-hdr{padding:20px 18px 0;}
+.step-hdr h2{font-size:26px;font-weight:900;margin-bottom:6px;}
+.step-hdr p{font-size:14px;color:var(--muted);line-height:1.5;}
 
-        @media (max-width: 768px) {
-            .sidebar { position: fixed; left: -280px; height: 100%; z-index: 100; }
-            .sidebar.active { left: 0; }
-        }
+/* PRODUCT ITEMS in catalogue */
+.prod-row{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.prod-row.selected{border-color:var(--g);background:var(--gl);}
+.prod-thumb{width:56px;height:56px;background:#F0F0EC;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--g);text-align:center;line-height:1.3;flex-shrink:0;}
+.prod-info{flex:1;}
+.prod-info .name{font-size:15px;font-weight:700;}
+.prod-info .meta{font-size:12px;color:var(--muted);margin-top:1px;}
+.prod-add-btn{background:#F0F0EC;border:1.5px solid var(--border);border-radius:10px;padding:7px 14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.prod-row.selected .prod-add-btn{background:var(--g);color:#fff;border-color:var(--g);}
 
-        .new-chat {
-            background: #333537; padding: 12px 16px; border-radius: 50px;
-            display: flex; align-items: center; gap: 12px; font-size: 14px; cursor: pointer; width: fit-content;
-        }
+/* PRICE INPUT ROW */
+.price-row{display:flex;align-items:center;gap:10px;}
+.price-input-wrap{display:flex;align-items:center;background:#F0F0EC;border:1.5px solid var(--border);border-radius:10px;padding:6px 12px;gap:6px;}
+.price-input-wrap input{background:none;border:none;width:70px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text);outline:none;}
+.del-btn{background:#FEE2E2;border:none;width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
 
-        .main-chat { flex: 1; display: flex; flex-direction: column; position: relative; }
+/* CATEGORY PILLS */
+.cat-pills{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none;}
+.cat-pills::-webkit-scrollbar{display:none;}
+.cat-pill{flex-shrink:0;background:#F0F0EC;border:1.5px solid var(--border);border-radius:20px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:.2s;}
+.cat-pill.active{background:var(--g);border-color:var(--g);color:#fff;}
 
-        .chat-header { height: 64px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:14px;}
+.search-wrap i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);}
+.search-wrap input{width:100%;background:#F0F0EC;border:1.5px solid var(--border);border-radius:12px;padding:12px 16px 12px 40px;font-family:'Nunito',sans-serif;font-size:15px;outline:none;}
+.search-wrap input:focus{border-color:var(--g);}
 
-        .chat-body {
-            flex: 1; overflow-y: auto; padding: 20px 15% 150px 15%;
-            display: flex; flex-direction: column; gap: 32px;
-        }
+/* SHOP DASHBOARD */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;}
+.stat-card .label{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.stat-card .val{font-size:28px;font-weight:900;}
+.stat-card .sub{font-size:12px;color:var(--muted);margin-top:2px;}
 
-        @media (max-width: 768px) { .chat-body { padding: 20px 5% 150px 5%; } }
+/* MENU ROWS */
+.menu-row{background:var(--white);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin-bottom:10px;cursor:pointer;border:1px solid var(--border);transition:.2s;}
+.menu-row:hover{border-color:var(--g);}
+.menu-icon{width:44px;height:44px;background:var(--gl);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.menu-info{flex:1;}
+.menu-info .title{font-size:15px;font-weight:800;}
+.menu-info .sub{font-size:12px;color:var(--muted);margin-top:2px;}
 
-        .message { display: flex; gap: 20px; font-size: 16px; line-height: 1.6; }
-        .avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
-        .g-avatar { background: linear-gradient(135deg, #1a73e8, #4285f4); color: white; }
-        .u-avatar { background: #555; color: white; }
+/* OPEN BADGE */
+.open-badge{display:inline-flex;align-items:center;gap:5px;background:var(--gl);border:1px solid #A7F3D0;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--g);}
+.open-dot{width:7px;height:7px;background:var(--g);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
 
-        /* --- FLOATING INPUT BAR --- */
-        .input-wrapper {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 800px; background: #1e1f20; border-radius: 32px;
-            padding: 8px 16px; display: flex; align-items: center; gap: 12px;
-        }
+/* CUSTOMER SHOP CARD */
+.shop-card{background:var(--white);border:1.5px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;transition:.2s;}
+.shop-card:hover{border-color:var(--g);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.08);}
+.shop-card.far{opacity:.55;filter:grayscale(.3);cursor:not-allowed;}
+.shop-card .sname{font-size:18px;font-weight:800;}
+.shop-card .saddr{font-size:13px;color:var(--muted);margin:3px 0 8px;}
+.shop-card .dist-row{display:flex;align-items:center;justify-content:space-between;}
+.dist-badge{background:#F0F0EC;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;}
+.far-badge{background:#FEE2E2;color:#DC2626;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;}
 
-        .input-wrapper input {
-            flex: 1; background: transparent; border: none; outline: none; color: white; font-size: 16px; padding: 10px 0;
-        }
+/* CART FLOAT */
+.cart-float{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:444px;background:var(--g);border-radius:16px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;box-shadow:0 6px 24px rgba(16,163,127,.4);z-index:80;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(20px);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+.cart-float .cf-l{display:flex;align-items:center;gap:10px;}
+.cart-float .cf-badge{background:rgba(0,0,0,.2);border-radius:8px;padding:3px 10px;font-size:13px;font-weight:800;color:#fff;}
+.cart-float .cf-txt{font-size:15px;font-weight:800;color:#fff;}
+.cart-float .cf-tot{font-size:16px;font-weight:900;color:#fff;}
 
-        .icon-btn { color: var(--text-gray); cursor: pointer; padding: 8px; border-radius: 50%; }
-        .icon-btn:hover { background: #333; }
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;backdrop-filter:blur(3px);}
+.drawer-overlay.open{display:flex;align-items:flex-end;justify-content:center;}
+.drawer{background:var(--white);width:100%;max-width:480px;border-radius:24px 24px 0 0;max-height:85vh;overflow-y:auto;padding:20px;}
+.drawer-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 18px;}
 
-        /* --- TYPING LOADER --- */
-        .loader { display: flex; gap: 4px; padding: 10px 0; }
-        .dot { width: 4px; height: 4px; background: #4285f4; border-radius: 50%; animation: bounce 1.4s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+/* QR */
+.qr-box{background:#fff;border-radius:12px;padding:16px;display:flex;justify-content:center;border:1.5px solid var(--border);margin:14px 0;}
 
-    </style>
+/* ORDER CARD */
+.order-card{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;}
+.order-card .oc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.order-card .oc-id{font-size:13px;font-weight:700;}
+.order-card .oc-time{font-size:11px;color:var(--muted);}
+.order-card .oc-items{font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.6;}
+.order-card .oc-foot{display:flex;justify-content:space-between;align-items:center;}
+.order-card .oc-total{font-size:18px;font-weight:900;color:var(--g);}
+
+/* TAGS */
+.tag-new{background:#DCFCE7;color:#166534;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:700;}
+
+/* TOAST */
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;border-radius:12px;padding:12px 20px;font-size:14px;font-weight:700;z-index:999;display:none;white-space:nowrap;}
+
+/* TRIAL BANNER */
+.trial-banner{background:var(--gl);border:1px solid #A7F3D0;border-radius:14px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.trial-banner i{font-size:22px;color:var(--g);}
+.trial-banner .tb-title{font-size:14px;font-weight:800;color:var(--g);}
+.trial-banner .tb-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* LANGUAGE SELECT CARDS */
+.lang-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.lang-card{border:2px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;transition:.2s;text-align:center;}
+.lang-card.selected{border-color:var(--g);background:var(--gl);}
+.lang-card .lc-name{font-size:15px;font-weight:800;}
+.lang-card .lc-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.check-mark{color:var(--g);font-size:16px;margin-bottom:4px;display:none;}
+.lang-card.selected .check-mark{display:block;}
+
+/* SHOP PRODUCTS PAGE (customer view) */
+.sprod-row{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.sprod-thumb{width:56px;height:56px;background:#F0F0EC;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--g);text-align:center;line-height:1.3;flex-shrink:0;}
+.sprod-info{flex:1;}
+.sprod-info .sn{font-size:15px;font-weight:700;}
+.sprod-info .sp{font-size:16px;font-weight:900;color:var(--g);margin-top:2px;}
+.qty-ctrl{display:flex;align-items:center;gap:8px;background:var(--gl);border:1.5px solid var(--g);border-radius:10px;padding:4px 8px;}
+.qty-ctrl button{background:none;border:none;font-size:18px;font-weight:900;cursor:pointer;color:var(--g);width:24px;height:24px;display:flex;align-items:center;justify-content:center;}
+.qty-ctrl span{font-size:15px;font-weight:800;min-width:20px;text-align:center;}
+.add-btn-cust{background:#F0F0EC;border:1.5px solid var(--border);border-radius:10px;padding:8px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+/* CART ITEM */
+.ci{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.ci:last-child{border-bottom:none;}
+.ci-info{flex:1;}
+.ci-name{font-size:14px;font-weight:700;}
+.ci-price{font-size:13px;color:var(--muted);}
+.ci-total{font-size:16px;font-weight:900;color:var(--text);}
+
+/* SHOP HEADER CUSTOMER */
+.shop-hdr{background:var(--white);border-bottom:1px solid var(--border);padding:16px 18px;}
+.shop-hdr .sh-name{font-size:22px;font-weight:900;}
+.shop-hdr .sh-addr{font-size:13px;color:var(--muted);margin-top:3px;}
+
+/* CUSTOM PRODUCT MODAL */
+.modal-ovl{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-ovl.open{display:flex;}
+.modal-box{background:var(--white);border-radius:20px;padding:24px;width:100%;max-width:420px;}
+
+/* BACK BTN */
+.back-btn{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--g);cursor:pointer;padding:0 18px 0;margin-bottom:2px;}
+
+/* BOTTOM ACTION BAR (catalogue) */
+.bot-action{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--g);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;z-index:80;}
+.bot-action .ba-left{color:#fff;font-size:13px;font-weight:700;}
+.bot-action .ba-btn{background:#fff;color:var(--g);border:none;border-radius:12px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;}
+.bot-action .ba-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+/* SHOP LINK BOX */
+.link-box{background:#F0F0EC;border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.link-box span{font-size:13px;color:var(--text2);word-break:break-all;flex:1;}
+.link-copy-btn{background:var(--white);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:16px;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px;}
+.empty-state p{font-size:15px;}
+
+/* ── BILL / CHECKOUT PAGE ── */
+.bill-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+.bill-row:last-child{border-bottom:none;}
+.bill-row .br-name{font-size:14px;color:var(--text2);}
+.bill-row .br-qty{font-size:12px;color:var(--muted);margin-top:2px;}
+.bill-row .br-amt{font-size:15px;font-weight:800;}
+.bill-divider{height:1px;background:var(--border);margin:8px 0;}
+.bill-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px;}
+.bill-total-row .bt-label{font-size:16px;font-weight:800;}
+.bill-total-row .bt-val{font-size:22px;font-weight:900;color:var(--g);}
+.bill-charge-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;}
+.bill-charge-row .bc-label{font-size:13px;color:var(--muted);}
+.bill-charge-row .bc-val{font-size:13px;font-weight:700;color:var(--text2);}
+.bill-charge-row.highlight .bc-label{color:var(--text2);font-weight:700;}
+.bill-charge-row.highlight .bc-val{color:var(--go);font-weight:800;}
+</style>
 </head>
 <body>
 
-    <div id="auth-screen">
-        <div class="login-box">
-            <h1 class="text-2xl font-normal mb-2 text-gray-800">Sign in</h1>
-            <p class="text-gray-600 text-sm">to continue to Giggle AI</p>
-            <div class="google-btn" id="login-trigger">
-                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20">
-                Sign in with Google
-            </div>
-            <p class="text-xs text-gray-400 mt-10">Founder: Ajay Sikarwar | Aurevix</p>
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE: LANDING
+═══════════════════════════════════════════ -->
+<div class="page active" id="pg-landing">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;">
+    <div style="font-size:56px;margin-bottom:16px;">🛍️</div>
+    <div style="font-size:36px;font-weight:900;color:var(--g);margin-bottom:4px;">TheGiggle</div>
+    <div style="font-size:20px;font-weight:700;color:var(--go);margin-bottom:8px;">Store</div>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:36px;line-height:1.6;">Apni local dukaan online karo.<br>5km ke andar, instant delivery.</p>
+    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;">
+      <button class="btn btn-g" onclick="goToShopOnboard()">🏪 Dukaan Register Karo</button>
+      <button class="btn btn-outline" onclick="goToCustomer()">🛒 Order Karo</button>
+    </div>
+    <p style="margin-top:24px;font-size:12px;color:var(--muted);">📍 Sirf 5km ke andar ki dukaanein dikhegi</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SHOP ONBOARDING — STEP 1: LANGUAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-lang">
+  <div class="top-nav"><div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div></div>
+  <div class="prog-bar" style="margin:0;"><div class="prog-fill" style="width:25%"></div></div>
+  <div class="step-hdr">
+    <h2>Language vibe choose karo</h2>
+    <p style="margin-top:6px;margin-bottom:20px;">Buyers ko shop, cart aur order pages par yahi wording dikhegi.</p>
+  </div>
+  <div style="padding:0 18px;">
+    <div class="lang-grid">
+      <div class="lang-card selected" onclick="selectLang(this,'hinglish')" id="lang-hinglish">
+        <div class="check-mark">✓</div>
+        <div class="lc-name">Hinglish</div>
+        <div class="lc-sub">Hindi + English letters mix</div>
+      </div>
+      <div class="lang-card" onclick="selectLang(this,'english')" id="lang-english">
+        <div class="check-mark">✓</div>
+        <div class="lc-name">Straight English</div>
+        <div class="lc-sub">Neutral English only</div>
+      </div>
+      <div class="lang-card" onclick="selectLang(this,'tamil')" id="lang-tamil">
+        <div class="check-mark">✓</div>
+        <div class="lc-name">Tamizh · Roman</div>
+        <div class="lc-sub">Tamil words in ABC</div>
+      </div>
+      <div class="lang-card" onclick="selectLang(this,'telugu')" id="lang-telugu">
+        <div class="check-mark">✓</div>
+        <div class="lc-name">Telugu · Roman</div>
+        <div class="lc-sub">Telugu slang in Latin</div>
+      </div>
+    </div>
+    <button class="btn btn-g" onclick="goStep('pg-wa')">Aage badho →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STEP 2: WHATSAPP NUMBER
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-wa">
+  <div class="top-nav"><div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div></div>
+  <div class="prog-bar" style="margin:0;"><div class="prog-fill" style="width:50%"></div></div>
+  <div class="step-hdr">
+    <h2>WhatsApp number</h2>
+    <p style="margin-top:6px;margin-bottom:20px;">Orders jis WhatsApp par chahiye woh daalo (+91 preset).</p>
+  </div>
+  <div style="padding:0 18px;">
+    <div class="field">
+      <label>WhatsApp number</label>
+      <div class="prefix">
+        <div class="prefix-label">+91</div>
+        <input type="tel" id="waNum" placeholder="9876543210" maxlength="10">
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:6px;">Orders yahi WhatsApp pe aayenge</p>
+    </div>
+    <button class="btn btn-g" onclick="validateWA()">Aage badho →</button>
+    <div style="margin-top:10px;"><button class="btn btn-outline" onclick="goStep('pg-lang')">← Peeche</button></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STEP 3: SHOP BASICS
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-shopbasic">
+  <div class="top-nav"><div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div></div>
+  <div class="prog-bar" style="margin:0;"><div class="prog-fill" style="width:75%"></div></div>
+  <div class="step-hdr">
+    <h2>Shop ki basic baatein</h2>
+    <p style="margin-top:6px;margin-bottom:20px;">Bas ~30 sec.</p>
+  </div>
+  <div style="padding:0 18px;">
+    <div class="field"><label>Shop name</label><input type="text" id="shopNameInp" placeholder="e.g. Sharma General Store"></div>
+    <div class="field">
+      <label>Area / locality</label>
+      <input type="text" id="shopAreaInp" placeholder="e.g. Civil Lines, Agra">
+    </div>
+    <div class="field"><label>Pincode</label><input type="number" id="shopPinInp" placeholder="e.g. 282001" maxlength="6"></div>
+    <div class="field">
+      <label>📸 Shop photo <span style="color:var(--muted);font-weight:400;">(optional)</span></label>
+      <div style="border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;" onclick="document.getElementById('shopPhotoInp').click()">
+        <div id="shopPhotoPreview" style="font-size:32px;color:var(--muted);">📷</div>
+        <p style="font-size:13px;color:var(--muted);margin-top:6px;">Photo lagao ya skip karo.</p>
+        <input type="file" id="shopPhotoInp" accept="image/*" style="display:none" onchange="previewShopPhoto(this)">
+      </div>
+    </div>
+    <button class="btn btn-g" onclick="saveShopBasic()">📍 Location Save karo aur Register karo</button>
+    <div style="margin-top:10px;"><button class="btn btn-outline" onclick="goStep('pg-wa')">← Peeche</button></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STEP 4: CATALOGUE PRODUCT SELECTION
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-catalogue">
+  <div class="top-nav"><div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div></div>
+  <div class="prog-bar" style="margin:0;"><div class="prog-fill" style="width:90%"></div></div>
+  <div class="step-hdr">
+    <h2>Apne products chuno</h2>
+    <p style="margin-top:6px;margin-bottom:14px;">Catalogue tap karo, price set karo — minimum 5 items.</p>
+  </div>
+  <div style="padding:0 18px;">
+    <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="catSearch" placeholder="Atta, dal, biscuit search..." oninput="filterCatalogue()"></div>
+    <div class="cat-pills" id="catPills"></div>
+    <div id="catList" style="padding-bottom:80px;"></div>
+  </div>
+  <div class="bot-action" id="catBotBar">
+    <div class="ba-left"><span id="catSelCount">0</span> / 5... <br><span style="font-size:11px;font-weight:400;">Aur <span id="catRemaining">5</span> chuno</span></div>
+    <button class="ba-btn" id="shopLockBtn" onclick="lockShop()" disabled>Shop lock karo →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SHOP DASHBOARD
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-shop-home">
+  <div class="top-nav">
+    <div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div>
+    <button onclick="logout()" style="background:none;border:none;font-size:13px;font-weight:700;color:#EF4444;cursor:pointer;">Logout</button>
+  </div>
+  <div style="padding:18px 18px 0;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+      <div>
+        <h2 style="font-size:26px;font-weight:900;" id="dashShopName">My Shop</h2>
+        <div style="margin-top:6px;display:flex;align-items:center;gap:10px;">
+          <div class="open-badge"><span class="open-dot"></span> Open now</div>
+          <span style="font-size:13px;color:var(--muted);" id="dashProdCount">0 products</span>
         </div>
+      </div>
+    </div>
+    <div class="trial-banner" id="trialBanner"><i class="fas fa-clock"></i><div><div class="tb-title" id="trialTitle">TheGiggle Store — Live!</div><div class="tb-sub" id="trialSub">Aaj ka order yahi dikhega</div></div></div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="label"><i class="fas fa-box"></i> Aaj ke orders</div><div class="val" id="dashOrders">0</div><div class="sub">Kal: 0</div></div>
+      <div class="stat-card"><div class="label"><i class="fas fa-comment"></i> Aaj ki sale</div><div class="val" id="dashSale">₹0</div><div class="sub">Subtotal</div></div>
+    </div>
+    <div class="menu-row" onclick="showBotTab('tab-link')"><div class="menu-icon">🔗</div><div class="menu-info"><div class="title">Shop link & QR</div><div class="sub" id="dashLinkPreview">Link / QR yahi se share karo</div></div><span style="color:var(--muted);">›</span></div>
+    <div class="menu-row" onclick="showBotTab('tab-products')"><div class="menu-icon">📦</div><div class="menu-info"><div class="title">Products</div><div class="sub">Price · photo · stock toggle.</div></div><span style="color:var(--muted);">›</span></div>
+    <div class="menu-row" onclick="showBotTab('tab-shop')"><div class="menu-icon">🏪</div><div class="menu-info"><div class="title">Shop settings</div><div class="sub">Name · location · WhatsApp.</div></div><span style="color:var(--muted);">›</span></div>
+    <h3 style="font-size:17px;font-weight:800;margin:16px 0 10px;">Aaj ka order list</h3>
+    <div id="dashOrderList"><div class="empty-state"><div class="es-icon">📭</div><p>Aaj abhi koi order nahi aaya.</p></div></div>
+  </div>
+  <div class="bot-nav" id="shopBotNav">
+    <div class="bn-item active" id="tab-home" onclick="showBotTab('tab-home')"><i class="fas fa-home"></i>Home</div>
+    <div class="bn-item" id="tab-products" onclick="showBotTab('tab-products')"><i class="fas fa-box"></i>Products</div>
+    <div class="bn-item" id="tab-shop" onclick="showBotTab('tab-shop')"><i class="fas fa-store"></i>Shop</div>
+    <div class="bn-item" id="tab-link" onclick="showBotTab('tab-link')"><i class="fas fa-link"></i>Link</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SHOP TAB: PRODUCTS
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-shop-products">
+  <div class="top-nav">
+    <div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div>
+  </div>
+  <div style="padding:18px;">
+    <h2 style="font-size:24px;font-weight:900;">Products</h2>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px;" id="prodSubtitle">Tap = edit vibes</p>
+    <div style="display:flex;gap:10px;margin:14px 0;">
+      <button class="btn btn-outline btn-sm" onclick="openCustomModal()">+ Custom</button>
+      <button class="btn btn-g btn-sm" onclick="openAddCatalogue()">+ Catalogue</button>
+    </div>
+    <div id="shopProdList"></div>
+  </div>
+  <div class="bot-nav" id="shopBotNav2">
+    <div class="bn-item" id="tab-home2" onclick="showBotTab('tab-home')"><i class="fas fa-home"></i>Home</div>
+    <div class="bn-item active" id="tab-products2" onclick="showBotTab('tab-products')"><i class="fas fa-box"></i>Products</div>
+    <div class="bn-item" id="tab-shop2" onclick="showBotTab('tab-shop')"><i class="fas fa-store"></i>Shop</div>
+    <div class="bn-item" id="tab-link2" onclick="showBotTab('tab-link')"><i class="fas fa-link"></i>Link</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SHOP TAB: SETTINGS
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-shop-settings">
+  <div class="top-nav">
+    <div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div>
+  </div>
+  <div style="padding:18px;">
+    <h2 style="font-size:24px;font-weight:900;">Shop settings</h2>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px;margin-bottom:20px;">Sab edit karke Save dabana.</p>
+    <div style="font-size:15px;font-weight:800;color:var(--text2);margin-bottom:12px;">Shop identity</div>
+    <div class="field"><label>Shop name</label><input type="text" id="sShopName" placeholder="Sharma Kirana"></div>
+    <div class="field">
+      <label>WhatsApp (orders)</label>
+      <div class="prefix"><div class="prefix-label">+91</div><input type="tel" id="sWaNum" placeholder="9876543210" maxlength="10"></div>
+    </div>
+    <div class="field"><label>Area</label><input type="text" id="sArea" placeholder="Civil Lines, Agra"></div>
+    <div class="field"><label>Pincode</label><input type="number" id="sPin" placeholder="282001"></div>
+    <button class="btn btn-g" onclick="saveSettings()">Shop settings Save karo</button>
+  </div>
+  <div class="bot-nav">
+    <div class="bn-item" onclick="showBotTab('tab-home')"><i class="fas fa-home"></i>Home</div>
+    <div class="bn-item" onclick="showBotTab('tab-products')"><i class="fas fa-box"></i>Products</div>
+    <div class="bn-item active"><i class="fas fa-store"></i>Shop</div>
+    <div class="bn-item" onclick="showBotTab('tab-link')"><i class="fas fa-link"></i>Link</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SHOP TAB: LINK & QR
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-shop-link">
+  <div class="top-nav">
+    <div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div>
+  </div>
+  <div style="padding:18px;text-align:center;">
+    <div style="font-size:48px;margin-bottom:10px;">🏪</div>
+    <h2 style="font-size:24px;font-weight:900;">Shop link & QR</h2>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px;margin-bottom:20px;">Link / QR yahi se forward karte ho.</p>
+    <div class="card" style="text-align:left;">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;">Shop link</div>
+      <div class="link-box"><span id="shopLinkDisplay">—</span><button class="link-copy-btn" onclick="copyShopLink()">📋</button></div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px;">QR code</div>
+      <div class="qr-box"><div id="qrDiv"></div></div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:14px;" id="qrShopLabel">—</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="downloadQR()">⬇️ Download</button>
+        <button class="btn btn-outline btn-sm" style="flex:1;" onclick="printQR()">🖨️ Print</button>
+      </div>
+    </div>
+    <button class="btn btn-g" onclick="shareWA()" style="margin-bottom:10px;">
+      <i class="fab fa-whatsapp"></i> Share on WhatsApp
+    </button>
+    <button class="btn btn-outline" onclick="copyShopLink()">Copy link</button>
+  </div>
+  <div class="bot-nav">
+    <div class="bn-item" onclick="showBotTab('tab-home')"><i class="fas fa-home"></i>Home</div>
+    <div class="bn-item" onclick="showBotTab('tab-products')"><i class="fas fa-box"></i>Products</div>
+    <div class="bn-item" onclick="showBotTab('tab-shop')"><i class="fas fa-store"></i>Shop</div>
+    <div class="bn-item active"><i class="fas fa-link"></i>Link</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CUSTOMER HOME — 5KM SHOPS
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-cust-home">
+  <div class="top-nav">
+    <div class="logo"><div class="logo-icon">🛍️</div><div class="logo-text">TheGiggle<span>Store</span></div></div>
+    <button onclick="goPage('pg-landing')" style="background:none;border:none;font-size:13px;font-weight:700;color:#EF4444;cursor:pointer;">← Back</button>
+  </div>
+  <div style="padding:18px 18px 0;">
+    <h2 style="font-size:22px;font-weight:900;">Aas-paas ki dukaanein</h2>
+    <p style="font-size:13px;color:var(--muted);margin-top:4px;" id="custLocStatus">📍 Location fetch ho rahi hai...</p>
+    <div style="margin-top:14px;" id="shopsList"><div class="empty-state"><div class="es-icon" style="font-size:32px;">⏳</div><p>Dukaanein dhundh rahe hain...</p></div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CUSTOMER: SHOP PRODUCTS
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-cust-shop">
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:14px 18px;position:sticky;top:0;z-index:90;display:flex;justify-content:space-between;align-items:center;">
+    <div class="back-btn" style="padding:0;" onclick="goPage('pg-cust-home')"><i class="fas fa-arrow-left"></i> Dukaanein</div>
+    <div onclick="openCartDrawer()" style="cursor:pointer;position:relative;">🛍️ <span id="cartCount" style="background:var(--go);color:#fff;border-radius:10px;padding:2px 7px;font-size:11px;font-weight:800;position:absolute;top:-6px;right:-6px;">0</span></div>
+  </div>
+  <div class="shop-hdr">
+    <div class="sh-name" id="custShopName">—</div>
+    <div class="sh-addr" id="custShopAddr">—</div>
+  </div>
+  <div style="padding:14px 18px;">
+    <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="custSearch" placeholder="Search products..." oninput="filterCustProds()"></div>
+    <div id="custProdList" style="padding-bottom:120px;"></div>
+  </div>
+  <!-- Cart float -->
+  <div class="cart-float hidden" id="cartFloat" onclick="openCartDrawer()">
+    <div class="cf-l"><div class="cf-badge" id="cfBadge">0</div><div class="cf-txt">Cart dekho</div></div>
+    <div class="cf-tot" id="cfTotal">₹0</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     SUBSCRIPTION EXPIRED PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-expired">
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;text-align:center;">
+    <div style="font-size:56px;margin-bottom:16px;">⏳</div>
+    <h2 style="font-size:26px;font-weight:900;color:#EF4444;margin-bottom:8px;">Free Trial Khatam!</h2>
+    <p style="font-size:15px;color:var(--muted);margin-bottom:28px;line-height:1.7;">Aapka 1 mahine ka free trial khatam ho gaya.<br>Shop active rakhne ke liye <strong style="color:var(--text);">₹299/month</strong> ka subscription lo.</p>
+    <div style="width:100%;max-width:340px;background:var(--white);border:2px solid var(--g);border-radius:20px;padding:22px;margin-bottom:24px;">
+      <div style="font-size:13px;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Monthly Plan</div>
+      <div style="font-size:42px;font-weight:900;color:var(--text);margin-bottom:4px;">₹299<span style="font-size:16px;font-weight:600;color:var(--muted);">/month</span></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:18px;">Unlimited orders · Shop link & QR · All features</div>
+      <div style="border-top:1px solid var(--border);padding-top:14px;text-align:left;">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">UPI se payment karo 👇</div>
+        <div style="background:#F0F0EC;border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-size:14px;font-weight:800;color:var(--text);">9193738863@ybl</span>
+          <button onclick="copyUPI()" style="background:var(--g);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Copy</button>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;">Payment ke baad WhatsApp karo confirmation ke liye.</p>
+      </div>
+    </div>
+    <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px;">
+      <button class="btn btn-g" onclick="paymentDoneWA()">💬 Payment ho gaya — WhatsApp karo</button>
+      <button class="btn btn-outline" onclick="logout()">← Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     CART DRAWER  (now shows "Bill dekho" button)
+═══════════════════════════════════════════ -->
+<div class="drawer-overlay" id="cartOverlay" onclick="closeCartDrawer()">
+  <div class="drawer" onclick="event.stopPropagation()">
+    <div class="drawer-handle"></div>
+    <h3 style="font-size:20px;font-weight:900;margin-bottom:16px;">🛍️ Tumhara Cart</h3>
+    <div id="cartItemsList"></div>
+    <div id="cartFooter" class="hidden">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:1px solid var(--border);margin-top:8px;">
+        <span style="font-size:15px;color:var(--muted);">Items subtotal</span>
+        <span style="font-size:24px;font-weight:900;" id="cartTotalAmt">₹0</span>
+      </div>
+      <!-- ── CHANGED: was "WhatsApp pe Order karo", now goes to checkout/bill page ── -->
+      <button class="btn btn-g" onclick="goToCheckout()">🧾 Bill dekho aur Order karo</button>
+    </div>
+    <div id="cartEmpty" class="empty-state"><div class="es-icon">🛒</div><p>Cart khaali hai. Products add karo!</p></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     NEW: CHECKOUT / BILL PAGE
+═══════════════════════════════════════════ -->
+<div class="page" id="pg-checkout">
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:14px 18px;position:sticky;top:0;z-index:90;display:flex;align-items:center;gap:12px;">
+    <div class="back-btn" style="padding:0;" onclick="backToCart()"><i class="fas fa-arrow-left"></i> Cart</div>
+    <span style="font-size:17px;font-weight:900;">Bill & Order</span>
+  </div>
+
+  <div style="padding:16px 18px;padding-bottom:100px;">
+
+    <!-- ITEMIZED BILL CARD -->
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📦 Order Summary</div>
+      <div id="billItemsList"></div>
+
+      <!-- Charges breakdown -->
+      <div class="bill-divider"></div>
+      <div class="bill-charge-row">
+        <span class="bc-label">Items subtotal</span>
+        <span class="bc-val" id="billSubtotal">₹0</span>
+      </div>
+      <div class="bill-charge-row highlight">
+        <span class="bc-label">GST (18%)</span>
+        <span class="bc-val" id="billGst">₹0</span>
+      </div>
+      <div class="bill-charge-row highlight">
+        <span class="bc-label">Handling charge</span>
+        <span class="bc-val" id="billHandling">₹3</span>
+      </div>
+      <div class="bill-divider"></div>
+      <div class="bill-total-row">
+        <span class="bt-label">Total payable</span>
+        <span class="bt-val" id="billGrandTotal">₹0</span>
+      </div>
     </div>
 
-    <div class="app-container" id="app">
-        <aside class="sidebar" id="sidebar">
-            <div class="new-chat" onclick="location.reload()">
-                <span>+</span> New Chat
-            </div>
-            <div class="mt-10 flex-1 overflow-y-auto px-2" id="history">
-                <p class="text-[11px] font-bold text-gray-500 uppercase px-4 mb-4">Recent</p>
-            </div>
-            <div class="text-[10px] text-gray-500 p-4 border-t border-gray-800">
-                Giggle AI v2.0 Premium
-            </div>
-        </aside>
-
-        <main class="main-chat">
-            <header class="chat-header">
-                <button class="md:hidden" onclick="document.getElementById('sidebar').classList.toggle('active')">☰</button>
-                <div class="text-xl font-medium tracking-tight">Giggle <span class="text-blue-500">AI</span></div>
-                <div class="avatar u-avatar" id="header-avatar">AS</div>
-            </header>
-
-            <div class="chat-body" id="chat-stream">
-                <div class="message">
-                    <div class="avatar g-avatar">G</div>
-                    <div>
-                        <h2 class="text-3xl font-medium mb-4" id="greeting">Hello, Ajay</h2>
-                        <p class="text-gray-400">Main Giggle AI hoon. Main aapke liye code, images aur digital assets create kar sakta hoon. Aaj hum kya banayenge?</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="input-wrapper">
-                <label class="icon-btn">
-                    <input type="file" class="hidden">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4.86 8.86l-3 3.87L9 13.14 6 17h12l-3.86-5.14z"/></svg>
-                </label>
-                <input type="text" id="user-input" placeholder="Enter a prompt here..." autocomplete="off">
-                <button class="icon-btn" onclick="askAI()">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                </button>
-            </div>
-        </main>
+    <!-- CUSTOMER DETAILS CARD -->
+    <div class="card">
+      <div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px;">👤 Delivery Details</div>
+      <div class="field">
+        <label>Aapka naam (Name) *</label>
+        <input type="text" id="custName" placeholder="e.g. Ramesh Kumar">
+      </div>
+      <div class="field">
+        <label>Phone number *</label>
+        <div class="prefix">
+          <div class="prefix-label">+91</div>
+          <input type="tel" id="custPhone" placeholder="9876543210" maxlength="10">
+        </div>
+      </div>
+      <div class="field">
+        <label>Delivery address *</label>
+        <textarea id="custAddress" placeholder="Ghar ka pura address daalo — mohalla, gali, landmark..."></textarea>
+      </div>
     </div>
 
-    <script>
-        // FIREBASE SETUP
-        const fbConfig = {
-            apiKey: "AIzaSyBSEGs12FJN2AVx8bHf-rDeQwOCRZJRo3k",
-            authDomain: "thegiggle-ai.firebaseapp.com",
-            projectId: "thegiggle-ai"
-        };
-        firebase.initializeApp(fbConfig);
+    <!-- PLACE ORDER BUTTON -->
+    <button class="btn btn-g" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:calc(100% - 36px);max-width:444px;margin-bottom:18px;border-radius:16px;box-shadow:0 6px 24px rgba(16,163,127,.4);" onclick="placeOrder()">
+      <i class="fab fa-whatsapp"></i> WhatsApp pe Order karo
+    </button>
+  </div>
+</div>
 
-        const auth = firebase.auth();
+<!-- CUSTOM PRODUCT MODAL -->
+<div class="modal-ovl" id="customModal">
+  <div class="modal-box">
+    <h3 style="font-size:20px;font-weight:900;margin-bottom:18px;">+ Custom Product</h3>
+    <div class="field"><label>Product name</label><input type="text" id="cpName" placeholder="e.g. Tata Salt 1kg"></div>
+    <div class="field"><label>Category</label>
+      <select id="cpCat">
+        <option value="staples">Staples</option><option value="dal">Dal</option><option value="rice">Rice</option>
+        <option value="snacks">Snacks</option><option value="dairy">Dairy</option><option value="beverages">Beverages</option>
+        <option value="personal">Personal Care</option><option value="cleaning">Cleaning</option><option value="other">Other</option>
+      </select>
+    </div>
+    <div class="field"><label>Price (₹)</label><input type="number" id="cpPrice" placeholder="0"></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="closeCustomModal()">Cancel</button>
+      <button class="btn btn-g" onclick="addCustomProd()">Save</button>
+    </div>
+  </div>
+</div>
 
-        // 1. LOGIN HANDLER
-        document.getElementById('login-trigger').addEventListener('click', () => {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider).then(res => {
-                renderApp(res.user);
-            }).catch(e => alert("Error: " + e.message));
-        });
+<!-- ADD CATALOGUE DRAWER (from shop products tab) -->
+<div class="drawer-overlay" id="addCatOverlay" onclick="closeAddCatalogue()">
+  <div class="drawer" onclick="event.stopPropagation()" style="max-height:90vh;">
+    <div class="drawer-handle"></div>
+    <h3 style="font-size:20px;font-weight:900;margin-bottom:4px;">Catalogue se add karo</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:14px;">Select karo aur price set karo</p>
+    <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="addCatSearch" placeholder="Search..." oninput="filterAddCat()"></div>
+    <div id="addCatList" style="max-height:55vh;overflow-y:auto;"></div>
+    <button class="btn btn-g" style="margin-top:14px;" onclick="saveFromDrawerCat()">Add karo</button>
+  </div>
+</div>
 
-        // 2. AUTH STATE LISTENER
-        auth.onAuthStateChanged(user => {
-            if (user) renderApp(user);
-        });
+<script>
+// ══════════════════════════════════
+//  CATALOGUE DATA (50+ kirana items)
+// ══════════════════════════════════
+const CATALOGUE = [
+  {id:'c1',name:'Tata Salt 1kg',brand:'Tata',cat:'staples',unit:'packet',emoji:'🧂'},
+  {id:'c2',name:'Aashirvaad Atta 5kg',brand:'ITC',cat:'atta',unit:'packet',emoji:'🌾'},
+  {id:'c3',name:'Aashirvaad Atta 10kg',brand:'ITC',cat:'atta',unit:'packet',emoji:'🌾'},
+  {id:'c4',name:'Pillsbury Atta 5kg',brand:'Pillsbury',cat:'atta',unit:'packet',emoji:'🌾'},
+  {id:'c5',name:'India Gate Basmati Rice 5kg',brand:'India Gate',cat:'rice',unit:'packet',emoji:'🍚'},
+  {id:'c6',name:'Idli Rice 1kg',brand:'Local',cat:'rice',unit:'packet',emoji:'🍚'},
+  {id:'c7',name:'Toor Dal 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c8',name:'Chana Dal 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c9',name:'Whole Urad 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c10',name:'Whole Moong 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c11',name:'Black Chana 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c12',name:'Kabuli Chana 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c13',name:'Whole Urad 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+  {id:'c14',name:'Fortune Sunflower Oil 1L',brand:'Fortune',cat:'oil',unit:'packet',emoji:'🫙'},
+  {id:'c15',name:'Fortune Sunflower Oil 5L',brand:'Fortune',cat:'oil',unit:'packet',emoji:'🫙'},
+  {id:'c16',name:'Amul Ghee 500g',brand:'Amul',cat:'oil',unit:'packet',emoji:'🫙'},
+  {id:'c17',name:'Amul Ghee 1kg',brand:'Amul',cat:'oil',unit:'packet',emoji:'🫙'},
+  {id:'c18',name:'Amul Full Cream Milk 1L',brand:'Amul',cat:'dairy',unit:'packet',emoji:'🥛'},
+  {id:'c19',name:'Amul Butter 100g',brand:'Amul',cat:'dairy',unit:'packet',emoji:'🧈'},
+  {id:'c20',name:'Amul Dahi 400g',brand:'Amul',cat:'dairy',unit:'packet',emoji:'🥣'},
+  {id:'c21',name:'Mother Dairy Tonned Milk 1L',brand:'Mother Dairy',cat:'dairy',unit:'packet',emoji:'🥛'},
+  {id:'c22',name:'Britannia Bread 400g',brand:'Britannia',cat:'dairy',unit:'packet',emoji:'🍞'},
+  {id:'c23',name:'Eggs Brown 6 pcs',brand:'Local',cat:'dairy',unit:'piece',emoji:'🥚'},
+  {id:'c24',name:'Eggs Brown 12 pcs',brand:'Local',cat:'dairy',unit:'piece',emoji:'🥚'},
+  {id:'c25',name:'Parle-G 200g',brand:'Parle',cat:'snacks',unit:'packet',emoji:'🍪'},
+  {id:'c26',name:'Lays Classic Salted',brand:'Lays',cat:'snacks',unit:'packet',emoji:'🍿'},
+  {id:'c27',name:'Kurkure Masala Munch',brand:'Kurkure',cat:'snacks',unit:'packet',emoji:'🌽'},
+  {id:'c28',name:'Uncle Chips 60g',brand:'Uncle Chips',cat:'snacks',unit:'packet',emoji:'🍿'},
+  {id:'c29',name:'Haldiram Bhujia 200g',brand:'Haldiram',cat:'snacks',unit:'packet',emoji:'🥜'},
+  {id:'c30',name:'Maggi 2-min Noodles 280g',brand:'Maggi',cat:'snacks',unit:'packet',emoji:'🍜'},
+  {id:'c31',name:'Thums Up 750ml',brand:'Thums Up',cat:'beverages',unit:'packet',emoji:'🥤'},
+  {id:'c32',name:'Coca Cola 750ml',brand:'Coca-Cola',cat:'beverages',unit:'packet',emoji:'🥤'},
+  {id:'c33',name:'Pepsi 750ml',brand:'Pepsi',cat:'beverages',unit:'packet',emoji:'🥤'},
+  {id:'c34',name:'Bisleri 1L',brand:'Bisleri',cat:'beverages',unit:'packet',emoji:'💧'},
+  {id:'c35',name:'Nescafe Classic 50g',brand:'Nescafe',cat:'beverages',unit:'packet',emoji:'☕'},
+  {id:'c36',name:'Tata Tea Premium 500g',brand:'Tata',cat:'beverages',unit:'packet',emoji:'🍵'},
+  {id:'c37',name:'MDH Garam Masala 100g',brand:'MDH',cat:'masala',unit:'packet',emoji:'🌶️'},
+  {id:'c38',name:'Everest Garam Masala',brand:'Everest',cat:'masala',unit:'packet',emoji:'🌶️'},
+  {id:'c39',name:'Turmeric Powder 500g',brand:'Local',cat:'masala',unit:'packet',emoji:'🟡'},
+  {id:'c40',name:'Red Chilli Powder 500g',brand:'Local',cat:'masala',unit:'packet',emoji:'🌶️'},
+  {id:'c41',name:'Coriander Powder 500g',brand:'Local',cat:'masala',unit:'packet',emoji:'🌿'},
+  {id:'c42',name:'Hing 50g',brand:'Local',cat:'masala',unit:'packet',emoji:'🟤'},
+  {id:'c43',name:'Colgate MaxFresh 150g',brand:'Colgate',cat:'personal',unit:'packet',emoji:'🪥'},
+  {id:'c44',name:'Dettol Handwash 200ml',brand:'Dettol',cat:'personal',unit:'packet',emoji:'🧴'},
+  {id:'c45',name:'Lifebuoy Soap 100g',brand:'Lifebuoy',cat:'personal',unit:'packet',emoji:'🧼'},
+  {id:'c46',name:'Parachute Coconut Oil 200ml',brand:'Parachute',cat:'personal',unit:'packet',emoji:'🫙'},
+  {id:'c47',name:'Surf Excel 1kg',brand:'Surf Excel',cat:'cleaning',unit:'packet',emoji:'🫧'},
+  {id:'c48',name:'Tide Plus 1kg',brand:'Tide',cat:'cleaning',unit:'packet',emoji:'🫧'},
+  {id:'c49',name:'Harpic 1L',brand:'Harpic',cat:'cleaning',unit:'packet',emoji:'🧹'},
+  {id:'c50',name:'Lizol 975ml',brand:'Lizol',cat:'cleaning',unit:'packet',emoji:'🪣'},
+  {id:'c51',name:'Reynolds 045 Pen',brand:'Reynolds',cat:'other',unit:'packet',emoji:'🖊️'},
+  {id:'c52',name:'Classmate Notebook',brand:'Classmate',cat:'other',unit:'piece',emoji:'📓'},
+  {id:'c53',name:'Idli Rice 1kg',brand:'Local',cat:'rice',unit:'packet',emoji:'🍚'},
+  {id:'c54',name:'Whole Urad 1kg',brand:'Local',cat:'dal',unit:'packet',emoji:'🫘'},
+];
 
-        function renderApp(user) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app').style.display = 'flex';
-            document.getElementById('greeting').innerText = `Hello, ${user.displayName.split(' ')[0]}`;
-            document.getElementById('header-avatar').innerText = user.displayName[0];
-        }
+const CAT_LABELS = {
+  all:'All',atta:'Atta',rice:'Rice',dal:'Dal',oil:'Oil & ghee',staples:'Staples',
+  dairy:'Dairy',snacks:'Snacks',beverages:'Beverages',masala:'Masala',
+  personal:'Personal',cleaning:'Cleaning',other:'Other'
+};
 
-        // 3. AI CHAT ENGINE
-        const input = document.getElementById('user-input');
-        input.addEventListener('keypress', e => { if(e.key==='Enter') askAI(); });
+// ══════════════════════════════════
+//  STATE
+// ══════════════════════════════════
+let shops = JSON.parse(localStorage.getItem('tg_shops')||'[]');
+let currentShop = JSON.parse(localStorage.getItem('tg_currentShop')||'null');
+let cart = [];
+let viewingShop = null;
+let selectedLang = 'hinglish';
+let catSelectedIds = new Set();
+let catPrices = {};
+let addCatSelectedIds = new Set();
+let custLat = null, custLng = null;
 
-        async function askAI() {
-            const stream = document.getElementById('chat-stream');
-            const prompt = input.value.trim();
-            if(!prompt) return;
+const WA = '919193738863';
+const GST_RATE = 0.18;
+const HANDLING_CHARGE = 3;
 
-            // Update UI User
-            stream.innerHTML += `<div class="message justify-end"><div class="bg-[#333537] p-4 rounded-2xl max-w-[80%]">${prompt}</div></div>`;
-            input.value = '';
-            stream.scrollTop = stream.scrollHeight;
+// ══════════════════════════════════
+//  UTILS
+// ══════════════════════════════════
+function goPage(id){ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+function goStep(id){ goPage(id); }
+function showToast(msg,dur=2500){ const t=document.getElementById('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none',dur); }
+function saveShops(){ localStorage.setItem('tg_shops',JSON.stringify(shops)); }
+function saveCurrentShop(){ localStorage.setItem('tg_currentShop',JSON.stringify(currentShop)); }
+function dist(lat1,lon1,lat2,lon2){ const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180,a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); }
+function genId(){ return 'shop_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function getShopURL(shopId){ return `${location.origin}${location.pathname}?shop=${shopId}`; }
+function logout(){ currentShop=null; localStorage.removeItem('tg_currentShop'); goPage('pg-landing'); }
 
-            // Loading Dot
-            const lid = 'l-' + Date.now();
-            stream.innerHTML += `<div class="message" id="${lid}"><div class="avatar g-avatar">G</div><div class="loader"><div class="dot"></div><div class="dot" style="animation-delay:0.2s"></div><div class="dot" style="animation-delay:0.4s"></div></div></div>`;
+// ══════════════════════════════════
+//  LANDING
+// ══════════════════════════════════
+function goToShopOnboard(){
+  if(currentShop){ loadShopDashboard(); return; }
+  goPage('pg-lang');
+}
+function goToCustomer(){ goPage('pg-cust-home'); loadNearbyShops(); }
 
-            try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${fbConfig.apiKey}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: `You are Giggle AI, created by Ajay Sikarwar. You are a senior developer and business advisor. Reply to: ${prompt}` }] }] })
-                });
+// ══════════════════════════════════
+//  STEP 1: LANGUAGE
+// ══════════════════════════════════
+function selectLang(el, lang){
+  document.querySelectorAll('.lang-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected'); selectedLang=lang;
+}
 
-                const data = await response.json();
-                const aiText = data.candidates[0].content.parts[0].text;
-                document.getElementById(lid).remove();
+// ══════════════════════════════════
+//  STEP 2: WA VALIDATE
+// ══════════════════════════════════
+function validateWA(){
+  const v=document.getElementById('waNum').value.trim();
+  if(v.length!==10||isNaN(v)){ showToast('⚠️ 10 digit ka valid number daalo'); return; }
+  goStep('pg-shopbasic');
+}
 
-                stream.innerHTML += `<div class="message"><div class="avatar g-avatar">G</div><div class="flex-1">${aiText.replace(/\n/g, '<br>')}</div></div>`;
-            } catch (e) {
-                document.getElementById(lid).innerHTML = "API Error. Please check Console.";
-            }
-            stream.scrollTop = stream.scrollHeight;
-        }
-    </script>
+// ══════════════════════════════════
+//  STEP 3: SHOP BASICS
+// ══════════════════════════════════
+function previewShopPhoto(inp){
+  if(inp.files&&inp.files[0]){
+    const r=new FileReader(); r.onload=e=>{ document.getElementById('shopPhotoPreview').innerHTML=`<img src="${e.target.result}" style="width:80px;height:80px;border-radius:10px;object-fit:cover;">`; }; r.readAsDataURL(inp.files[0]);
+  }
+}
+function saveShopBasic(){
+  const name=document.getElementById('shopNameInp').value.trim();
+  const area=document.getElementById('shopAreaInp').value.trim();
+  const pin=document.getElementById('shopPinInp').value.trim();
+  if(!name||!area){ showToast('⚠️ Shop name aur area zaroori hai'); return; }
+  if(!navigator.geolocation){ showToast('⚠️ Location support nahi hai'); return; }
+  showToast('📍 Location fetch ho rahi hai...');
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const wa=document.getElementById('waNum').value.trim();
+    const shop={ id:genId(), name, area, pin, waNum:wa, lang:selectedLang, lat:pos.coords.latitude, lng:pos.coords.longitude, products:[], orders:[], createdAt:Date.now() };
+    currentShop=shop; shops.push(shop); saveShops(); saveCurrentShop();
+    goPage('pg-catalogue'); renderCatalogue();
+  }, ()=>{
+    const wa=document.getElementById('waNum').value.trim();
+    const shop={ id:genId(), name, area, pin, waNum:wa, lang:selectedLang, lat:null, lng:null, products:[], orders:[], createdAt:Date.now() };
+    currentShop=shop; shops.push(shop); saveShops(); saveCurrentShop();
+    goPage('pg-catalogue'); renderCatalogue();
+  });
+}
+
+// ══════════════════════════════════
+//  STEP 4: CATALOGUE
+// ══════════════════════════════════
+function renderCatalogue(){
+  const cats=['all',...new Set(CATALOGUE.map(p=>p.cat))];
+  document.getElementById('catPills').innerHTML=cats.map((c,i)=>
+    `<div class="cat-pill${i===0?' active':''}" onclick="catFilter('${c}',this)">${CAT_LABELS[c]||c}</div>`
+  ).join('');
+  filterCatalogue();
+}
+let activeCatFilter='all';
+function catFilter(cat,el){ activeCatFilter=cat; document.querySelectorAll('#catPills .cat-pill').forEach(p=>p.classList.remove('active')); el.classList.add('active'); filterCatalogue(); }
+
+function filterCatalogue(){
+  const q=document.getElementById('catSearch').value.toLowerCase();
+  const filtered=CATALOGUE.filter(p=>(activeCatFilter==='all'||p.cat===activeCatFilter)&&(p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)));
+  document.getElementById('catList').innerHTML=filtered.map(p=>{
+    const sel=catSelectedIds.has(p.id);
+    return `<div class="prod-row${sel?' selected':''}" id="catrow-${p.id}">
+      <div class="prod-thumb">${p.emoji||'📦'}</div>
+      <div class="prod-info"><div class="name">${p.name}</div><div class="meta">${p.brand} · ${p.unit}</div></div>
+      ${sel?`<div class="price-row"><div class="price-input-wrap">₹ <input type="number" value="${catPrices[p.id]||50}" style="width:60px;background:none;border:none;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;outline:none;" onchange="setCatPrice('${p.id}',this.value)"></div><button class="del-btn" onclick="removeCatSel('${p.id}')">✕</button></div>`:
+      `<button class="prod-add-btn" onclick="addCatSel('${p.id}')">+ Add</button>`}
+    </div>`;
+  }).join('');
+  updateCatBar();
+}
+
+function addCatSel(id){ catSelectedIds.add(id); if(!catPrices[id]) catPrices[id]=50; filterCatalogue(); }
+function removeCatSel(id){ catSelectedIds.delete(id); filterCatalogue(); }
+function setCatPrice(id,val){ catPrices[id]=parseInt(val)||0; }
+function updateCatBar(){
+  const n=catSelectedIds.size;
+  document.getElementById('catSelCount').textContent=n;
+  document.getElementById('catRemaining').textContent=Math.max(0,5-n);
+  const btn=document.getElementById('shopLockBtn');
+  if(n>=5){ btn.disabled=false; btn.textContent='Shop lock karo →'; btn.style.opacity='1'; }
+  else{ btn.disabled=true; btn.textContent=`Aur ${5-n} chuno`; }
+}
+
+function lockShop(){
+  const prods=[...catSelectedIds].map(id=>{
+    const p=CATALOGUE.find(x=>x.id===id);
+    return {...p, price: catPrices[id]||50, inStock:true};
+  });
+  currentShop.products=prods; updateShopInList(); saveCurrentShop();
+  loadShopDashboard();
+}
+
+function updateShopInList(){
+  const idx=shops.findIndex(s=>s.id===currentShop.id);
+  if(idx>=0) shops[idx]=currentShop; else shops.push(currentShop);
+  saveShops();
+}
+
+// ══════════════════════════════════
+//  SHOP DASHBOARD
+// ══════════════════════════════════
+// ── TRIAL HELPERS ──
+const TRIAL_DAYS = 30;
+const SUB_UPI = '9193738863@ybl';
+
+function getTrialInfo(){
+  const created = currentShop.createdAt || Date.now();
+  const elapsed = Date.now() - created;
+  const daysUsed = Math.floor(elapsed / (1000*60*60*24));
+  const daysLeft = Math.max(0, TRIAL_DAYS - daysUsed);
+  const expired = daysLeft === 0;
+  return { daysUsed, daysLeft, expired };
+}
+
+function copyUPI(){
+  navigator.clipboard.writeText(SUB_UPI).then(()=>showToast('✅ UPI ID copy hua!'));
+}
+
+function paymentDoneWA(){
+  const msg=`💳 *TheGiggle Store — Subscription Payment*\n\n🏪 Shop: ${currentShop.name}\n📱 WhatsApp: +91${currentShop.waNum}\n\nMaine ₹299 UPI se pay kar diya hai.\nKripya subscription activate karo.\n\n_UPI: ${SUB_UPI}_`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+function loadShopDashboard(){
+  const {daysLeft, expired} = getTrialInfo();
+
+  // If trial expired, block and show payment page
+  if(expired){ goPage('pg-expired'); return; }
+
+  document.getElementById('dashShopName').textContent=currentShop.name;
+  document.getElementById('dashProdCount').textContent=`${currentShop.products.length} products`;
+  document.getElementById('dashLinkPreview').textContent=getShopURL(currentShop.id).slice(0,40)+'...';
+  const orders=currentShop.orders||[];
+  document.getElementById('dashOrders').textContent=orders.length;
+  const sale=orders.reduce((a,o)=>a+o.total,0);
+  document.getElementById('dashSale').textContent=`₹${sale}`;
+
+  // Update trial banner dynamically
+  const banner = document.getElementById('trialBanner');
+  const titleEl = document.getElementById('trialTitle');
+  const subEl = document.getElementById('trialSub');
+  if(daysLeft <= 5){
+    // Urgent warning — red tint
+    banner.style.background='#FEF2F2';
+    banner.style.border='1px solid #FECACA';
+    titleEl.style.color='#DC2626';
+    titleEl.textContent = `⚠️ Trial khatam hone wala hai!`;
+    subEl.textContent = `Sirf ${daysLeft} din bache — ₹299/month subscribe karo`;
+  } else {
+    titleEl.textContent = `🎉 Free Trial — ${daysLeft} din baaki`;
+    subEl.textContent = `Trial khatam hone ke baad ₹299/month lagega`;
+  }
+
+  renderDashOrders();
+  goPage('pg-shop-home');
+}
+
+function renderDashOrders(){
+  const orders=(currentShop.orders||[]).slice().reverse();
+  const el=document.getElementById('dashOrderList');
+  if(!orders.length){ el.innerHTML='<div class="empty-state"><div class="es-icon">📭</div><p>Aaj abhi koi order nahi aaya.</p></div>'; return; }
+  el.innerHTML=orders.map(o=>`
+    <div class="order-card">
+      <div class="oc-head"><span class="oc-id">#${o.id}</span><span class="tag-new">New</span></div>
+      <div class="oc-items">${o.items.map(i=>`${i.emoji||'📦'} ${i.name} ×${i.qty}`).join(' · ')}</div>
+      <div class="oc-foot"><span class="oc-total">₹${o.total}</span>
+        <button style="background:var(--g);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;" onclick="forwardOrder('${o.id}')">💬 Forward</button>
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════
+//  BOTTOM NAV TABS
+// ══════════════════════════════════
+function showBotTab(tab){
+  const tabMap={'tab-home':'pg-shop-home','tab-products':'pg-shop-products','tab-shop':'pg-shop-settings','tab-link':'pg-shop-link'};
+  goPage(tabMap[tab]||'pg-shop-home');
+  if(tab==='tab-home') loadShopDashboard();
+  if(tab==='tab-products') renderShopProducts();
+  if(tab==='tab-shop') loadSettings();
+  if(tab==='tab-link') loadLinkPage();
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll(`[id="${tab}"]`).forEach(b=>b.classList.add('active'));
+}
+
+// ══════════════════════════════════
+//  PRODUCTS TAB
+// ══════════════════════════════════
+function renderShopProducts(){
+  document.getElementById('prodSubtitle').textContent=`${currentShop.products.length} SKU lines · tap = edit`;
+  document.getElementById('shopProdList').innerHTML=currentShop.products.map((p,i)=>`
+    <div class="prod-row" style="cursor:pointer;" onclick="editProdPrice(${i})">
+      <div class="prod-thumb">${p.emoji||'📦'}</div>
+      <div class="prod-info"><div class="name">${p.name}</div><div class="meta">${p.cat||''} · ${p.unit||'packet'}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;font-weight:900;">₹${p.price}</span>
+        <span style="font-size:18px;cursor:pointer;color:var(--muted);">✏️</span>
+      </div>
+    </div>`).join('');
+}
+
+function editProdPrice(idx){
+  const p=currentShop.products[idx];
+  const newPrice=prompt(`${p.name} — nayi price daalo (₹):`,p.price);
+  if(newPrice!==null&&!isNaN(newPrice)&&newPrice>0){
+    currentShop.products[idx].price=parseInt(newPrice);
+    updateShopInList(); saveCurrentShop(); renderShopProducts();
+    showToast('✅ Price update hua!');
+  }
+}
+
+function openCustomModal(){ document.getElementById('customModal').classList.add('open'); }
+function closeCustomModal(){ document.getElementById('customModal').classList.remove('open'); }
+function addCustomProd(){
+  const name=document.getElementById('cpName').value.trim();
+  const cat=document.getElementById('cpCat').value;
+  const price=parseInt(document.getElementById('cpPrice').value)||0;
+  if(!name||!price){ showToast('⚠️ Name aur price zaroori hai'); return; }
+  const newP={id:'cp_'+Date.now(),name,cat,unit:'packet',price,emoji:'📦',inStock:true,brand:'Custom'};
+  currentShop.products.push(newP); updateShopInList(); saveCurrentShop();
+  closeCustomModal(); renderShopProducts(); showToast('✅ Product add hua!');
+}
+
+function openAddCatalogue(){
+  addCatSelectedIds=new Set();
+  filterAddCat();
+  document.getElementById('addCatOverlay').classList.add('open');
+}
+function closeAddCatalogue(){ document.getElementById('addCatOverlay').classList.remove('open'); }
+function filterAddCat(){
+  const q=(document.getElementById('addCatSearch').value||'').toLowerCase();
+  const existIds=new Set(currentShop.products.map(p=>p.id));
+  const filtered=CATALOGUE.filter(p=>!existIds.has(p.id)&&(p.name.toLowerCase().includes(q)||p.brand.toLowerCase().includes(q)));
+  document.getElementById('addCatList').innerHTML=filtered.map(p=>{
+    const sel=addCatSelectedIds.has(p.id);
+    return `<div class="prod-row${sel?' selected':''}">
+      <div class="prod-thumb">${p.emoji||'📦'}</div>
+      <div class="prod-info"><div class="name">${p.name}</div><div class="meta">${p.brand} · ${p.unit}</div></div>
+      <button class="prod-add-btn" onclick="toggleAddCat('${p.id}',this)">${sel?'✓ Added':'+ Add'}</button>
+    </div>`;
+  }).join('');
+}
+function toggleAddCat(id,btn){
+  if(addCatSelectedIds.has(id)){ addCatSelectedIds.delete(id); btn.textContent='+ Add'; btn.closest('.prod-row').classList.remove('selected'); }
+  else{ addCatSelectedIds.add(id); btn.textContent='✓ Added'; btn.closest('.prod-row').classList.add('selected'); }
+}
+function saveFromDrawerCat(){
+  addCatSelectedIds.forEach(id=>{
+    const p=CATALOGUE.find(x=>x.id===id);
+    if(p){ currentShop.products.push({...p,price:50,inStock:true}); }
+  });
+  updateShopInList(); saveCurrentShop(); closeAddCatalogue(); renderShopProducts();
+  showToast(`✅ ${addCatSelectedIds.size} products add kiye!`);
+}
+
+// ══════════════════════════════════
+//  SETTINGS TAB
+// ══════════════════════════════════
+function loadSettings(){
+  document.getElementById('sShopName').value=currentShop.name||'';
+  document.getElementById('sWaNum').value=currentShop.waNum||'';
+  document.getElementById('sArea').value=currentShop.area||'';
+  document.getElementById('sPin').value=currentShop.pin||'';
+}
+function saveSettings(){
+  currentShop.name=document.getElementById('sShopName').value.trim();
+  currentShop.waNum=document.getElementById('sWaNum').value.trim();
+  currentShop.area=document.getElementById('sArea').value.trim();
+  currentShop.pin=document.getElementById('sPin').value.trim();
+  updateShopInList(); saveCurrentShop(); showToast('✅ Settings save hua!');
+}
+
+// ══════════════════════════════════
+//  LINK & QR TAB
+// ══════════════════════════════════
+function loadLinkPage(){
+  const url=getShopURL(currentShop.id);
+  document.getElementById('shopLinkDisplay').textContent=url;
+  document.getElementById('qrShopLabel').textContent=currentShop.name;
+  document.getElementById('qrDiv').innerHTML='';
+  new QRCode(document.getElementById('qrDiv'),{text:url,width:200,height:200,colorDark:'#000000',colorLight:'#ffffff'});
+}
+function copyShopLink(){
+  navigator.clipboard.writeText(getShopURL(currentShop.id)).then(()=>showToast('🔗 Link copy hua!'));
+}
+function downloadQR(){
+  setTimeout(()=>{
+    const c=document.querySelector('#qrDiv canvas');
+    if(!c){ showToast('⚠️ QR ready nahi hai'); return; }
+    const a=document.createElement('a'); a.download=`${currentShop.name}-QR.png`; a.href=c.toDataURL(); a.click();
+    showToast('⬇️ QR download hua!');
+  },100);
+}
+function printQR(){
+  const c=document.querySelector('#qrDiv canvas');
+  if(!c){ showToast('⚠️ QR ready nahi hai'); return; }
+  const w=window.open('');
+  w.document.write(`<img src="${c.toDataURL()}" style="width:300px"><p style="font-size:20px;font-weight:bold;text-align:center">${currentShop.name}</p><p style="text-align:center;font-size:12px">TheGiggle Store</p>`);
+  w.print();
+}
+function shareWA(){
+  const url=getShopURL(currentShop.id);
+  const msg=`🛍️ *${currentShop.name}* aab online hai!\n\nOrder karo yahaan se:\n${url}\n\n_Powered by TheGiggle Store_`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// ══════════════════════════════════
+//  CUSTOMER: NEARBY SHOPS
+// ══════════════════════════════════
+function loadNearbyShops(){
+  if(!navigator.geolocation){ renderShopsList(null,null); return; }
+  navigator.geolocation.getCurrentPosition(pos=>{
+    custLat=pos.coords.latitude; custLng=pos.coords.longitude;
+    document.getElementById('custLocStatus').textContent=`📍 Tumhari location: ${custLat.toFixed(4)}, ${custLng.toFixed(4)}`;
+    renderShopsList(custLat,custLng);
+  },()=>{ document.getElementById('custLocStatus').textContent='⚠️ Location allow karo behetar results ke liye'; renderShopsList(null,null); });
+}
+
+function renderShopsList(lat,lng){
+  const freshShops=JSON.parse(localStorage.getItem('tg_shops')||'[]');
+  if(!freshShops.length){ document.getElementById('shopsList').innerHTML='<div class="empty-state"><div class="es-icon">🏪</div><p>Koi dukaan abhi tak register nahi hui.</p></div>'; return; }
+  const sorted=freshShops.map(s=>{
+    let d=null;
+    if(lat&&lng&&s.lat&&s.lng) d=dist(lat,lng,s.lat,s.lng);
+    return {...s,_dist:d};
+  }).sort((a,b)=>(a._dist||999)-(b._dist||999));
+
+  document.getElementById('shopsList').innerHTML=sorted.map(s=>{
+    const inRange=s._dist===null||s._dist<=5;
+    const distTxt=s._dist!==null?`${s._dist.toFixed(1)} km`:null;
+    return `<div class="shop-card${!inRange?' far':''}" ${inRange?`onclick="openShop('${s.id}')"`:'title="5km se bahar"'}>
+      <div class="sname">${s.name}</div>
+      <div class="saddr">📍 ${s.area||'Agra'}${s.pin?' — '+s.pin:''}</div>
+      <div class="dist-row">
+        <div>${s.products.length} products</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          ${distTxt?`<span class="dist-badge">${distTxt}</span>`:''}
+          ${!inRange?'<span class="far-badge">Too Far</span>':'<span class="open-badge"><span class="open-dot"></span>Open</span>'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════
+//  CUSTOMER: OPEN SHOP
+// ══════════════════════════════════
+function openShop(shopId){
+  const freshShops=JSON.parse(localStorage.getItem('tg_shops')||'[]');
+  viewingShop=freshShops.find(s=>s.id===shopId);
+  if(!viewingShop){ showToast('⚠️ Shop nahi mili'); return; }
+  cart=[];
+  document.getElementById('custShopName').textContent=viewingShop.name;
+  document.getElementById('custShopAddr').textContent=`📍 ${viewingShop.area||'Agra'}`;
+  renderCustProds();
+  updateCartFloat();
+  goPage('pg-cust-shop');
+}
+
+function renderCustProds(){
+  const q=(document.getElementById('custSearch').value||'').toLowerCase();
+  const prods=(viewingShop.products||[]).filter(p=>p.name.toLowerCase().includes(q));
+  document.getElementById('custProdList').innerHTML=prods.map(p=>{
+    const ci=cart.find(c=>c.id===p.id);
+    return `<div class="sprod-row">
+      <div class="sprod-thumb">${p.emoji||'📦'}</div>
+      <div class="sprod-info"><div class="sn">${p.name}</div><div class="sp">₹${p.price}</div></div>
+      ${ci?`<div class="qty-ctrl"><button onclick="cartAdj('${p.id}',-1)">−</button><span>${ci.qty}</span><button onclick="cartAdj('${p.id}',1)">+</button></div>`:
+      `<button class="add-btn-cust" onclick="cartAdd('${p.id}')">+ Add</button>`}
+    </div>`;
+  }).join('');
+}
+function filterCustProds(){ renderCustProds(); }
+
+function cartAdd(id){
+  const p=viewingShop.products.find(x=>x.id===id);
+  if(!p) return;
+  cart.push({...p,qty:1});
+  renderCustProds(); updateCartFloat();
+}
+function cartAdj(id,delta){
+  const idx=cart.findIndex(c=>c.id===id);
+  if(idx<0) return;
+  cart[idx].qty+=delta;
+  if(cart[idx].qty<=0) cart.splice(idx,1);
+  renderCustProds(); updateCartFloat();
+}
+function updateCartFloat(){
+  const count=cart.reduce((a,c)=>a+c.qty,0);
+  const total=cart.reduce((a,c)=>a+c.qty*c.price,0);
+  document.getElementById('cartCount').textContent=count;
+  document.getElementById('cfBadge').textContent=count;
+  document.getElementById('cfTotal').textContent=`₹${total}`;
+  document.getElementById('cartFloat').classList.toggle('hidden',count===0);
+}
+
+function openCartDrawer(){
+  renderCartDrawer();
+  document.getElementById('cartOverlay').classList.add('open');
+}
+function closeCartDrawer(){ document.getElementById('cartOverlay').classList.remove('open'); }
+
+function renderCartDrawer(){
+  const el=document.getElementById('cartItemsList');
+  const footer=document.getElementById('cartFooter');
+  const empty=document.getElementById('cartEmpty');
+  if(!cart.length){ el.innerHTML=''; footer.classList.add('hidden'); empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden'); footer.classList.remove('hidden');
+  let total=0;
+  el.innerHTML=cart.map(c=>{ total+=c.qty*c.price; return `<div class="ci"><div class="sprod-thumb" style="width:44px;height:44px;">${c.emoji||'📦'}</div><div class="ci-info"><div class="ci-name">${c.name}</div><div class="ci-price">₹${c.price} × ${c.qty}</div></div><div class="ci-total">₹${c.qty*c.price}</div><div class="qty-ctrl" style="margin-left:4px;"><button onclick="cartAdj('${c.id}',-1);renderCartDrawer();updateCartFloat();">−</button><span>${c.qty}</span><button onclick="cartAdj('${c.id}',1);renderCartDrawer();updateCartFloat();">+</button></div></div>`; }).join('');
+  document.getElementById('cartTotalAmt').textContent=`₹${total}`;
+}
+
+// ══════════════════════════════════
+//  NEW: GO TO CHECKOUT / BILL PAGE
+// ══════════════════════════════════
+function goToCheckout(){
+  if(!cart.length){ showToast('⚠️ Cart khaali hai'); return; }
+  closeCartDrawer();
+
+  // Calculate amounts
+  const subtotal = cart.reduce((a,c)=>a+c.qty*c.price, 0);
+  const gst = Math.round(subtotal * GST_RATE);
+  const grandTotal = subtotal + gst + HANDLING_CHARGE;
+
+  // Render itemized bill
+  document.getElementById('billItemsList').innerHTML = cart.map(c=>`
+    <div class="bill-row">
+      <div>
+        <div class="br-name">${c.emoji||'📦'} ${c.name}</div>
+        <div class="br-qty">₹${c.price} × ${c.qty}</div>
+      </div>
+      <div class="br-amt">₹${c.qty*c.price}</div>
+    </div>`).join('');
+
+  document.getElementById('billSubtotal').textContent = `₹${subtotal}`;
+  document.getElementById('billGst').textContent = `₹${gst}`;
+  document.getElementById('billHandling').textContent = `₹${HANDLING_CHARGE}`;
+  document.getElementById('billGrandTotal').textContent = `₹${grandTotal}`;
+
+  goPage('pg-checkout');
+}
+
+function backToCart(){
+  goPage('pg-cust-shop');
+  openCartDrawer();
+}
+
+// ══════════════════════════════════
+//  PLACE ORDER (now from checkout page, with customer details)
+// ══════════════════════════════════
+function placeOrder(){
+  const custName = document.getElementById('custName').value.trim();
+  const custPhone = document.getElementById('custPhone').value.trim();
+  const custAddress = document.getElementById('custAddress').value.trim();
+
+  if(!custName){ showToast('⚠️ Apna naam daalo'); return; }
+  if(custPhone.length!==10||isNaN(custPhone)){ showToast('⚠️ 10 digit ka phone number daalo'); return; }
+  if(!custAddress){ showToast('⚠️ Delivery address daalo'); return; }
+  if(!cart.length){ showToast('⚠️ Cart khaali hai'); return; }
+
+  // Compute bill
+  const subtotal = cart.reduce((a,c)=>a+c.qty*c.price, 0);
+  const gst = Math.round(subtotal * GST_RATE);
+  const grandTotal = subtotal + gst + HANDLING_CHARGE;
+
+  const orderId = 'ORD'+Date.now().toString(36).toUpperCase();
+
+  // Item list for WA message
+  const itemLines = cart.map(c=>`  • ${c.name} ×${c.qty} = ₹${c.qty*c.price}`).join('\n');
+
+  const msg =
+`🛍️ *TheGiggle Store — Naya Order!*
+
+🏪 *Dukaan:* ${viewingShop.name}
+📍 ${viewingShop.area||''}
+
+📦 *Order Items:*
+${itemLines}
+
+──────────────────
+🧾 *Bill Breakdown:*
+  Items subtotal : ₹${subtotal}
+  GST (18%)      : ₹${gst}
+  Handling charge: ₹${HANDLING_CHARGE}
+──────────────────
+💰 *Total Payable : ₹${grandTotal}*
+
+👤 *Customer Details:*
+  Naam    : ${custName}
+  Phone   : +91 ${custPhone}
+  Address : ${custAddress}
+
+📋 Order ID: #${orderId}`;
+
+  // Save order to shop in localStorage
+  const freshShops=JSON.parse(localStorage.getItem('tg_shops')||'[]');
+  const idx=freshShops.findIndex(s=>s.id===viewingShop.id);
+  if(idx>=0){
+    if(!freshShops[idx].orders) freshShops[idx].orders=[];
+    freshShops[idx].orders.push({
+      id:orderId,
+      items:cart.map(c=>({id:c.id,name:c.name,qty:c.qty,price:c.price,emoji:c.emoji})),
+      total:grandTotal,
+      custName, custPhone, custAddress,
+      createdAt:Date.now()
+    });
+    localStorage.setItem('tg_shops',JSON.stringify(freshShops));
+  }
+
+  // Open WhatsApp — all orders come to TheGiggle owner
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+
+  cart=[]; updateCartFloat(); renderCustProds();
+  showToast('✅ WhatsApp khul raha hai!');
+  goPage('pg-cust-shop');
+}
+
+// ══════════════════════════════════
+//  FORWARD ORDER TO WA
+// ══════════════════════════════════
+function forwardOrder(orderId){
+  const order=(currentShop.orders||[]).find(o=>o.id===orderId);
+  if(!order) return;
+  const items=order.items.map(i=>`• ${i.name} ×${i.qty}`).join('\n');
+  const msg=`🚴 *Delivery Assignment*\n📦 Order #${orderId}\n\n${items}\n\n📍 Pick from: ${currentShop.name}, ${currentShop.area}`;
+  window.open(`https://wa.me/${WA}?text=${encodeURIComponent(msg)}`,'_blank');
+}
+
+// ══════════════════════════════════
+//  URL ROUTING — shop?=id
+// ══════════════════════════════════
+function checkURLShop(){
+  const p=new URLSearchParams(location.search);
+  const shopId=p.get('shop');
+  if(shopId){
+    const freshShops=JSON.parse(localStorage.getItem('tg_shops')||'[]');
+    const s=freshShops.find(x=>x.id===shopId);
+    if(s){ viewingShop=s; cart=[]; document.getElementById('custShopName').textContent=s.name; document.getElementById('custShopAddr').textContent=`📍 ${s.area||''}`; renderCustProds(); updateCartFloat(); goPage('pg-cust-shop'); return true; }
+  }
+  return false;
+}
+
+// ══════════════════════════════════
+//  INIT
+// ══════════════════════════════════
+window.addEventListener('load',()=>{
+  shops=JSON.parse(localStorage.getItem('tg_shops')||'[]');
+  if(checkURLShop()) return;
+  currentShop=JSON.parse(localStorage.getItem('tg_currentShop')||'null');
+  if(currentShop){
+    const fresh=shops.find(s=>s.id===currentShop.id);
+    if(fresh){ currentShop=fresh; saveCurrentShop(); loadShopDashboard(); return; }
+  }
+  goPage('pg-landing');
+});
+</script>
 </body>
 </html>
